@@ -1,7 +1,10 @@
 import telebot
 import os
 
+# Load bot token from Render environment variable
 BOT_TOKEN = os.getenv("BOT_TOKEN")
+if not BOT_TOKEN:
+    raise RuntimeError("BOT_TOKEN environment variable not set")
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
@@ -11,7 +14,8 @@ def start(message):
 
 @bot.message_handler(func=lambda msg: True)
 def echo_all(message):
-    bot.reply_to(message, "You said: " + (message.text or ""))
+    text = message.text or ""
+    bot.reply_to(message, "You said: " + text)
 
 print("Bot running...")
 bot.infinity_polling()
