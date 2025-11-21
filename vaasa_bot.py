@@ -1,8 +1,12 @@
+# vaasa_bot.py
 # minimal telegram bot using pyTelegramBotAPI
+
+import os
 import telebot
 
-# <<-- Put your bot token (between the quotes) on a single line here:
-BOT_TOKEN = "8252983187:AAEpQErz8JWBm_GOLq9YjP RTFI8wl7B3j5E"
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+if not BOT_TOKEN:
+    raise RuntimeError("BOT_TOKEN environment variable not set")
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
@@ -10,9 +14,11 @@ bot = telebot.TeleBot(BOT_TOKEN)
 def start(message):
     bot.reply_to(message, "Hello! I am VAASA Assistant. How can I help you?")
 
-@bot.message_handler(func=lambda msg: True)
+@bot.message_handler(func=lambda m: True)
 def echo_all(message):
-    bot.reply_to(message, "You said: " + (message.text or ""))
+    text = message.text or ""
+    bot.reply_to(message, "You said: " + text)
 
 print("Bot running...")
+# recommended polling
 bot.infinity_polling()
