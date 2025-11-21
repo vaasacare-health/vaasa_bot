@@ -1,23 +1,24 @@
-# vaasa_bot.py
-import os
-import sys
 import telebot
+from flask import Flask, request
 
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-if not BOT_TOKEN:
-    print("ERROR: BOT_TOKEN not set in environment variables.")
-    sys.exit(1)
-
-bot = telebot.TeleBot(BOT_TOKEN)
+TOKEN = "YOUR_TOKEN_HERE"
+bot = telebot.TeleBot(TOKEN)
+server = Flask(__name__)
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    bot.reply_to(message, "Hello! I am VAASA Assistant 🤖. How can I help you?")
+    bot.reply_to(message, "Hello! VAASA bot is active.")
 
-@bot.message_handler(func=lambda m: True)
-def echo_all(message):
-    text = message.text or ""
-    bot.reply_to(message, "You said: " + text)
+@server.route('/' + TOKEN, methods=['POST'])
+def getMessage():
+    bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
+    return "OK", 200
 
-print("Bot running...")
-bot.infinity_polling()
+@server.route("/")
+def webhook():
+    bot.remove_webhook()
+    bot.set_webhook(url="https://YOUR_RENDER_URL/" + TOKEN)
+    return "Webhook set", 200
+
+if __name__ == "__main__":
+    server.run(host="0.0.0.0", port=5000)
